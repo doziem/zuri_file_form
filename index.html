@@ -3,10 +3,113 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="style.css" /> 
   <title>File and Form</title>
+  <style>
+    .error {
+      color: red;
+    }
+  </style>
 </head>
 <body>
-  <h2>Simple HTML Form</h2>
-  
+  <form style="width: 60%; margin-left: auto; margin-right: auto; margin-bottom: 10px;"  id="myForm" method="POST" action="/submit">
+    <h2 style="text-align: center; color: teal;">Simple HTML Form</h2>
+    <div style="display: flex; flex-direction: column; gap: 15px;" >
+      <label style="margin-top: 10px;" for="firstName">First Name:</label>
+      <input style="width: 90%; padding: 10px;" type="text" id="firstName" name="firstName" required>
+      <span class="error" id="firstNameError"></span><br>
+    </div>
+
+    <div style="display: flex; flex-direction: column;  gap: 10px;">
+      <label  style="margin-top: 10px;" for="lastName">Last Name:</label>
+      <input style="width: 90%; padding: 10px;" type="text" id="lastName" name="lastName" required>
+      <span class="error" id="lastNameError"></span><br>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 15px; ">
+      <label  style="margin-top: 10px;" for="otherNames">Other Names:</label>
+      <input style="width: 90%; padding: 10px;" type="text" id="otherNames" name="otherNames">
+    </div>
+
+    <div style="display: flex; flex-direction: column;  gap: 15px;">
+      <label  style="margin-top: 10px;" for="email">Email:</label>
+      <input style="width: 90%; padding: 10px;" type="email" id="email" name="email" required>
+      <span class="error" id="emailError"></span><br>
+    </div>
+    
+    <div style="display: flex; flex-direction: column; gap: 15px;">
+      <label style="margin-top: 10px;" for="phone">Phone:</label>
+      <input style="width: 90%; padding: 10px;" type="tel" id="phone" name="phone" required>
+      <span class="error" id="phoneError"></span><br>
+      
+    </div>
+    
+    <div style="display: flex; flex-direction: column;  gap: 15px;">
+      <label style="margin-top: 10px;" for="gender">Gender:</label>
+      <select style="width: 93%; padding: 10px;" id="gender" name="gender" required>
+        <option value="">Select Gender</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+      </select>
+      <span class="error" id="genderError"></span><br>
+    </div>
+    <div style=" text-align: center;">
+      <button style="padding: 8px 70px; margin-top: 15px; background-color: teal; color: white; border: none;" type="submit">Submit</button>
+
+    </div>
+
+  </form>
+  <script>
+    document.getElementById('myForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const form = event.target;
+      const formData = new FormData(form);
+      const formObject = {};
+      formData.forEach((value, key) => {
+        formObject[key] = value;
+      });
+
+      try {
+        const response = await fetch('/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formObject)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          displayErrors(errorData.errors);
+        } else {
+          alert('Form submitted successfully!');
+          form.reset();
+        }
+      } catch (error) {
+        console.error('Error submitting form:', error);
+      }
+    });
+
+    function displayErrors(errors) {
+      const errorFields = ['firstNameError', 'lastNameError', 'otherNamesError', 'emailError', 'phoneError', 'genderError'];
+      errorFields.forEach(field => {
+        document.getElementById(field).textContent = '';
+      });
+
+      errors.forEach(error => {
+        if (error.includes('First Name')) {
+          document.getElementById('firstNameError').textContent = error;
+        } else if (error.includes('Last Name')) {
+          document.getElementById('lastNameError').textContent = error;
+        }  else if (error.includes('Invalid email')) {
+          document.getElementById('emailError').textContent = error;
+        } else if (error.includes('Invalid phone number')) {
+          document.getElementById('phoneError').textContent = error;
+        } else if (error.includes('Gender')) {
+          document.getElementById('genderError').textContent = error;
+        }
+      });
+    }
+  </script>
 </body>
 </html>
