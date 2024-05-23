@@ -3,63 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" type="text/css" href="style.css" /> 
-  <title>File and Form</title>
+  <title>Simple HTML Form</title>
   <style>
     .error {
       color: red;
+      font-size: 0.9em;
+    }
+
+    input,select{
+      width: 90%; 
+      padding: 10px; 
+    }
+    select{
+      width: 93%;
+    }
+    button{
+      padding: 8px 70px;
+       margin-top: 15px; 
+       background-color: teal; 
+       color: white; 
+       border: none;
     }
   </style>
 </head>
 <body>
-  <form style="width: 60%; margin-left: auto; margin-right: auto; margin-bottom: 10px;"  id="myForm" method="POST" action="/submit">
-    <h2 style="text-align: center; color: teal;">Simple HTML Form</h2>
-    <div style="display: flex; flex-direction: column; gap: 15px;" >
-      <label style="margin-top: 10px;" for="firstName">First Name:</label>
-      <input style="width: 90%; padding: 10px;" type="text" id="firstName" name="firstName" required>
+  <h2>Simple HTML Form</h2>
+  <form id="myForm">
+ 
+      <label for="firstName">First Name:</label><br>
+      <input type="text" id="firstName" name="firstName" ><br>
       <span class="error" id="firstNameError"></span><br>
-    </div>
-
-    <div style="display: flex; flex-direction: column;  gap: 10px;">
-      <label  style="margin-top: 10px;" for="lastName">Last Name:</label>
-      <input style="width: 90%; padding: 10px;" type="text" id="lastName" name="lastName" required>
-      <span class="error" id="lastNameError"></span><br>
-    </div>
-
-    <div style="display: flex; flex-direction: column; gap: 15px; ">
-      <label  style="margin-top: 10px;" for="otherNames">Other Names:</label>
-      <input style="width: 90%; padding: 10px;" type="text" id="otherNames" name="otherNames">
-    </div>
-
-    <div style="display: flex; flex-direction: column;  gap: 15px;">
-      <label  style="margin-top: 10px;" for="email">Email:</label>
-      <input style="width: 90%; padding: 10px;" type="email" id="email" name="email" required>
-      <span class="error" id="emailError"></span><br>
-    </div>
-    
-    <div style="display: flex; flex-direction: column; gap: 15px;">
-      <label style="margin-top: 10px;" for="phone">Phone:</label>
-      <input style="width: 90%; padding: 10px;" type="tel" id="phone" name="phone" required>
-      <span class="error" id="phoneError"></span><br>
+      <span class="error common" id="firstName"></span><br>
       
-    </div>
     
-    <div style="display: flex; flex-direction: column;  gap: 15px;">
-      <label style="margin-top: 10px;" for="gender">Gender:</label>
-      <select style="width: 93%; padding: 10px;" id="gender" name="gender" required>
-        <option value="">Select Gender</option>
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-        <option value="other">Other</option>
-      </select>
-      <span class="error" id="genderError"></span><br>
-    </div>
-    <div style=" text-align: center;">
-      <button style="padding: 8px 70px; margin-top: 15px; background-color: teal; color: white; border: none;" type="submit">Submit</button>
+    <label for="lastName">Last Name:</label><br>
+    <input type="text" id="lastName" name="lastName" ><br>
+    <span class="error" id="lastNameError"></span><br>
+    <span class="error common" id="lastName"></span><br>
 
-    </div>
+    <label for="otherNames">Other Names:</label><br>
+    <input type="text" id="otherNames" name="otherNames"><br>
+    <span class="error" id="otherNamesError"></span><br>
 
+    <label for="email">Email:</label><br>
+    <input type="email" id="email" name="email" ><br>
+    <span class="error" id="emailError"></span><br>
+
+    <label for="phone">Phone:</label><br>
+    <input type="tel" id="phone" name="phone" ><br>
+    <span class="error" id="phoneError"></span><br>
+
+    <label for="gender">Gender:</label><br>
+    <select id="gender" name="gender" >
+      <option value="">Select Gender</option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+      <option value="other">Other</option>
+    </select><br>
+    <span class="error" id="genderError"></span><br>
+
+    <button type="submit">Submit</button>
   </form>
+
   <script>
     document.getElementById('myForm').addEventListener('submit', async function(event) {
       event.preventDefault();
@@ -82,8 +87,9 @@
           const errorData = await response.json();
           displayErrors(errorData.errors);
         } else {
-          alert('Form submitted successfully!');
           form.reset();
+          
+          console.log('Form submitted successfully!');
         }
       } catch (error) {
         console.error('Error submitting form:', error);
@@ -91,25 +97,31 @@
     });
 
     function displayErrors(errors) {
-      const errorFields = ['firstNameError', 'lastNameError', 'otherNamesError', 'emailError', 'phoneError', 'genderError'];
+      const errorFields = ['firstNameError', 'lastNameError',  'emailError', 'phoneError', 'genderError'];
       errorFields.forEach(field => {
         document.getElementById(field).textContent = '';
       });
 
       errors.forEach(error => {
-        if (error.includes('First Name')) {
+        if(error.includes('Name cannot be less than 1 character.')){
+          document.getElementById('firstNameError').textContent = error;
+        }else if (error.includes('First Name')) {
           document.getElementById('firstNameError').textContent = error;
         } else if (error.includes('Last Name')) {
           document.getElementById('lastNameError').textContent = error;
-        }  else if (error.includes('Invalid email')) {
+       
+        } else if (error.includes('Invalid email')) {
           document.getElementById('emailError').textContent = error;
-        } else if (error.includes('Invalid phone number')) {
+        } else if (error.includes('Invalid Phone number')) {
           document.getElementById('phoneError').textContent = error;
         } else if (error.includes('Gender')) {
           document.getElementById('genderError').textContent = error;
+        }else if(error.includes("Name cannot be less")){
+          document.querySelectorAll('common').textContent = error;
         }
       });
     }
   </script>
 </body>
 </html>
+

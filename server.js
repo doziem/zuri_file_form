@@ -3,7 +3,7 @@ const fs = require('fs');
 const { parse } = require('querystring');
 const path = require('path');
 
-const PORT = process.env.PORT || 3000;
+const PORT =  3000;
 
 const server = http.createServer((req, res) => {
   if (req.method === 'OPTIONS') {
@@ -21,13 +21,13 @@ const server = http.createServer((req, res) => {
   if (req.method === 'GET' && req.url === '/') {
     res.writeHead(200, {'Content-Type': 'text/html'});
     fs.createReadStream(path.join(__dirname, 'index.html')).pipe(res);
-  } else if (req.method === 'POST' && req.url === '/submit') {
+  } else if (req.method === 'POST'  && req.url === '/submit') {
     let body = '';
     req.on('data', chunk => {
       body += chunk.toString();
     });
     req.on('end', () => {
-      const formData = parse(body);
+      const formData = JSON.parse(body);
       const errors = validateForm(formData);
 
       if (errors.length === 0) {
@@ -46,64 +46,65 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server is running on:${PORT}`);
+  console.log(`Server is running on: ${PORT}`);
 });
 
 function validateForm(formData) {
   const errors = [];
 
-  const firstName = formData.firstName?.trim();
-  const lastName = formData.lastName?.trim();
-  const otherNames = formData.otherNames?.trim();
-  const email = formData.email?.trim();
-  const phone = formData.phone?.trim();
-  const gender = formData.gender?.trim();
+  const firstName = formData.firstName.trim();
+  const lastName = formData.lastName.trim();
+  const email = formData.email.trim();
+  const phone = formData.phone.trim();
+  const gender = formData.gender.trim();
 
-  if (!firstName || !lastName) {
-    errors.push('First Name and Last Name are required.');
+  if (!firstName) {
+    errors.push('First Name is required.');
   }
 
-  if (firstName?.length < 1 || lastName?.length < 1) {
+  if (!lastName) {
+    errors.push('Last Name is required.');
+  }
+
+  if(firstName.length < 1 || lastName.length <1){
     errors.push('Name cannot be less than 1 character.');
   }
-
-  if (!/^[a-zA-Z]+$/.test(firstName) || !/^[a-zA-Z]+$/.test(lastName) || (otherNames && !/^[a-zA-Z\s]*$/.test(otherNames))) {
-    errors.push('Names cannot contain numbers.');
-  }
+  
 
   if (!isValidEmail(email)) {
-    errors.push('Invalid email address.');
+    errors.push('Invalid email');
   }
 
   if (!isValidPhoneNumber(phone)) {
-    errors.push('Invalid phone number.');
+    errors.push('Invalid Phone number.');
   }
 
   if (!gender) {
-    errors.push('Gender is required.');
+    errors.push('Please Gender is required.');
   }
 
   return errors;
 }
 
 function isValidEmail(email) {
-  const emailRegex =  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
 
 function isValidPhoneNumber(phone) {
-  const phoneRegex = /^\d{10}$/;
+  const phoneRegex = /^\d{11}$/;
   return phoneRegex.test(phone);
 }
 
 function saveToDatabase(formData) {
   fs.readFile('database.json', (err, data) => {
-    const jsonData = err ? [] : JSON.parse(data);
+    const jsonData = err ? [] : JSON?.parse(data);
     jsonData.push(formData);
     fs.writeFile('database.json', JSON.stringify(jsonData, null, 2), (err) => {
       if (err) {
         console.error('Error writing to database:', err);
       } else {
+        
         console.log('Form data saved to database.json');
       }
     });
