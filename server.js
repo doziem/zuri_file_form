@@ -21,7 +21,7 @@ const server = http.createServer((req, res) => {
   if (req.method === 'GET' && req.url === '/') {
     res.writeHead(200, {'Content-Type': 'text/html'});
     fs.createReadStream(path.join(__dirname, 'index.html')).pipe(res);
-  } else if (req.method === 'POST'  && req.url === '/submit') {
+  } else if (req.method === 'POST') {
     let body = '';
     req.on('data', chunk => {
       body += chunk.toString();
@@ -31,7 +31,7 @@ const server = http.createServer((req, res) => {
       const errors = validateForm(formData);
 
       if (errors.length === 0) {
-        saveToDatabase(formData);
+        saveJsonDatabase(formData);
         res.writeHead(200, {'Content-Type': 'text/plain'});
         res.end('Form submitted successfully!');
       } else {
@@ -96,15 +96,21 @@ function isValidPhoneNumber(phone) {
   return phoneRegex.test(phone);
 }
 
-function saveToDatabase(formData) {
+function saveJsonDatabase(formData) {
   fs.readFile('database.json', (err, data) => {
-    const jsonData = err ? [] : JSON?.parse(data);
+    
+     let jsonData =[];
+     if(!err){
+      jsonData= JSON?.parse(data);
+
+     }else{
+      console.log('Internal Server Error',err);
+     }
     jsonData.push(formData);
     fs.writeFile('database.json', JSON.stringify(jsonData, null, 2), (err) => {
       if (err) {
         console.error('Error writing to database:', err);
       } else {
-        
         console.log('Form data saved to database.json');
       }
     });
